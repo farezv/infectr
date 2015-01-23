@@ -10,13 +10,13 @@ The test cases will all run from the end of `main()`
 `git clone https://github.com/farezv/infectr.git` in your terminal
 or click the `Clone in Desktop button` if you have [GitHub for Mac](https://mac.github.com) or [GitHub for Windows](https://windows.github.com) installed or just `Download ZIP` if you don't (be sure to unzip the file!).
 
-* Enter the directory
+2. Enter the directory
 `cd ../path/to/infectr`
 
-* Compile the files using
+3. Compile the files using
 `javac Infectr.java`
 
-* Provide command line args, like
+4. Provide command line args, like
 
 `java Infectr 30` to create 30 users and execute the first 2 test cases
 
