@@ -37,27 +37,12 @@ public class Infectr {
 			infectedUsers = new ArrayList<Integer>();
 			groups = new HashMap<Integer, Group>();
 
-			/* I would setup a proper testing module (InfectrTest.java) in a production codebase, 
+			/* I would setup a separate testing package with InfectrTest.java in a production codebase, 
 			but I'm just going to call methods at the end of this main method to keep it simple */	
 			
-			/* Test Case 1: Infecting single user in disconnected graph */	
-			System.out.println("\n** Test Case 1 ** Single user in disconnected graph");
-			infectAll(5); // only infects 5
-			System.out.println("Infected " + infectedUsers.size() + " users : " + String.valueOf(infectedUsers));
-			disinfectUser(5); // test case cleanup
-
-			/* Test Case 2: Infecting single user in connected graph
-			This is testing the total_infection scenario */	
-			System.out.println("\n** Test Case 2 ** Total infection in connected graph");
-			createCoachedByRelations();
-			createCoachesRelations();
-			// printRelations(); // uncomment to visually check relation graph			
-			infectAll(7); // infects users starting from 7
-			System.out.println("Infected " + infectedUsers.size() + " users : " + String.valueOf(infectedUsers));
-
-			/* Test Case 3: Limited Infection Scenario */
-			System.out.println("\n** Test Case 3 ** Limited infection using Groups: \n");
-			printGroups();
+			InfectrTest.testSingleUserInDisconnectedGraph();
+			InfectrTest.testTotalInfection();
+			InfectrTest.testLimitedInfectionWithGroups();
 
 		} else System.out.println("Please enter the number of users you'd like to create, like 'java Infectr 30'");
 	}
@@ -188,6 +173,34 @@ public class Infectr {
 	public static void printGroups() {
 		for (Group g: groups.values()) {
 			System.out.println(g.getName() + " : " + g.getGroupUsers());
+		}
+	}
+
+	public static class InfectrTest {
+
+		/* Test Case 1: Infecting single user in disconnected graph */	
+		public static void testSingleUserInDisconnectedGraph() {
+			System.out.println("\n** Test Case 1 ** Single user in disconnected graph");
+			infectAll(5); // only infects 5
+			System.out.println("Infected " + infectedUsers.size() + " users : " + String.valueOf(infectedUsers));
+			disinfectUser(5); // test case cleanup
+		}
+
+		/* Test Case 2: Infecting single user in connected graph */	
+		public static void testTotalInfection() {
+			System.out.println("\n** Test Case 2 ** Total infection in connected graph");
+			createCoachedByRelations();
+			createCoachesRelations();
+			// printRelations(); // uncomment to visually check relation graph			
+			infectAll(7); // infects users starting from 7
+			System.out.println("Infected " + infectedUsers.size() + " users : " + String.valueOf(infectedUsers));
+
+		}
+
+		/* Test Case 3: Limited Infection Scenario */
+		public static void testLimitedInfectionWithGroups() {
+			System.out.println("\n** Test Case 3 ** Limited infection using Groups: \n");
+			printGroups();
 		}
 	}
 }
