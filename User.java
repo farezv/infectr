@@ -41,6 +41,7 @@ public class User {
     this.siteVersion = newVersion;
   }
 
+  /* Helpers */
   public void addCoach(int uid) {
     if(!this.coaches.contains(uid)) this.coaches.add(uid);
   }
