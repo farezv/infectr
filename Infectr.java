@@ -1,6 +1,10 @@
 import java.lang.Integer;
 import java.util.*;
 
+/* This class is probably doing a lot more than it should
+Ideally, I would have helper classes in separate modules
+NOTE: I had to make all methods/fields static to be able to call them
+from the main method's static context */
 public class Infectr {
 
 	private static int CURRENT_VERSION = 1;
@@ -41,7 +45,7 @@ public class Infectr {
 			groups = new HashMap<Integer, Group>();
 			
 			/* I would setup a separate testing package with InfectrTest.java in a production codebase, 
-			but I'm just going to call methods at the end of this main method to keep it simple */	
+			but I'm just going to call methods here to keep it simple and self contained */	
 			InfectrTest.testSingleUserInDisconnectedGraph();
 			InfectrTest.testTotalInfection();
 
@@ -111,11 +115,34 @@ public class Infectr {
 		}
 	}
 
-	/* Infects exactly number of users specified, fails otherwise */
+	/* Infects exactly number of users specified, fails otherwise
+	NOTE: This can use the results of infectLimited but I implemented it as a standalone method */
 	public static void infectExactly(int numUsers) {
 		// Proceed only if num of users we want to infect is less than total user base, and they're not all infected
 		if(numUsers < users.size() && users.size() != infectedUsers.size()) {
-			// infect exactly
+			ArrayList<Integer> exactUids = new ArrayList<Integer>();
+			int sum, i; 
+			sum = i = 0;
+			for(i = 0; i < sortedGroups.size() && sum < numUsers; i++) {
+				Group g = sortedGroups.get(i);
+				sum += g.getGroupSize();
+				// Build a list of potentially valid users to infect
+				for(int uid : g.getGroupUsers()) {
+					int coachId = g.getHeadCoachId();
+					if(!exactUids.contains(coachId)) {
+						exactUids.add(coachId);
+					}
+					if(!exactUids.contains(uid)) {
+						exactUids.add(uid);
+					}
+				}
+			}
+			if(exactUids.size() == numUsers) {
+				for(int uid : exactUids) {
+					infectOneUser(uid);
+				}
+			} else System.out.println("Whoops, it's not possible to infect exactly " + numUsers + " users");
+			System.out.println("Candidates: " + exactUids);
 		} else System.out.println("Whoops, it's not possible to infect exactly " + numUsers + " users");
 	}
 
@@ -218,10 +245,16 @@ public class Infectr {
 		}
 	}
 
+	/* Prints unsorted groups in the order they were created */
 	public static void printGroups() {
 		for (Group g: groups.values()) {
 			System.out.println(g.getName() + " : " + g.getGroupUsers());
 		}
+	}
+
+	/* I got tired of System.outs */
+	public static void print(String msg) {
+		System.out.println(msg);
 	}
 
 	public static class InfectrTest {
