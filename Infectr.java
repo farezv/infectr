@@ -46,9 +46,10 @@ public class Infectr {
 			InfectrTest.testTotalInfection();
 
 			sortedGroups = new ArrayList<Group>(groups.values());
-			if(secondArg > 0) {
+			if(secondArg > 0 && secondArg < firstArg) {
 				InfectrTest.testLimitedInfectionWithGroups(secondArg);
-			} else System.out.println("\nEnter a valid second argument to test Limited infection, like 'java Infectr 30 3' \nThis will infect 3 users out of 30");
+				InfectrTest.testExactInfectionWithGroups(secondArg);
+			} else System.out.println("\nEnter a valid second argument to test Limited & Exact infection, like 'java Infectr 30 3' \nThis will try to infect approx. 3 users out of 30 (limited), and exactly 3 out of 30 respectively");
 
 		} else System.out.println("Please enter the number of users you'd like to create, like 'java Infectr 30'");
 	}
@@ -115,7 +116,7 @@ public class Infectr {
 		// Proceed only if num of users we want to infect is less than total user base, and they're not all infected
 		if(numUsers < users.size() && users.size() != infectedUsers.size()) {
 			// infect exactly
-		}
+		} else System.out.println("Whoops, it's not possible to infect exactly " + numUsers + " users");
 	}
 
 	/* Adds a random coach to the specified user */
@@ -257,6 +258,18 @@ public class Infectr {
 			System.out.println(sortedGroups.get(0).getName() + " and size = " + sortedGroups.get(0).getGroupSize() + "\n ... ");
 			System.out.println(sortedGroups.get(sortedGroups.size()-1).getName() + " and size = " + sortedGroups.get(sortedGroups.size()-1).getGroupSize());
 			infectLimited(infectNum);
+			System.out.println("Infected " + infectedUsers.size() + " users : " + String.valueOf(infectedUsers));
+			// Test case cleanup
+			disinfectAll();
+		}
+
+		/* Test Case 4: Exact Infection Scenario */
+		public static void testExactInfectionWithGroups(int infectNum) {
+			System.out.println("\n** Test Case 4 ** Exact infection using Groups sorted by size (including head coach): ");
+			Collections.sort(sortedGroups);
+			System.out.println(sortedGroups.get(0).getName() + " and size = " + sortedGroups.get(0).getGroupSize() + "\n ... ");
+			System.out.println(sortedGroups.get(sortedGroups.size()-1).getName() + " and size = " + sortedGroups.get(sortedGroups.size()-1).getGroupSize());
+			infectExactly(infectNum);
 			System.out.println("Infected " + infectedUsers.size() + " users : " + String.valueOf(infectedUsers));
 			// Test case cleanup
 			disinfectAll();
