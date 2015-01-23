@@ -5,17 +5,24 @@ public class Infectr {
 
 	private static int CURRENT_VERSION = 1;
 
-	/* In production, users would be in a database and deserialized into a User class upon request */
+	/* In production, these data structures would be in a database */
 	private static HashMap<Integer, User> users;
-	private static ArrayList<Integer> infectedUsers;		
+	private static ArrayList<Integer> infectedUsers;
+	private static HashMap<Integer, Group> groups;		
 
 	public static void main(String[] args) {
+		// Only proceed if an arg is provided
 		if(args.length != 0) {
 			int firstArg = 0;
 			try {
 				firstArg = Integer.parseInt(args[0]);
 			} catch (Exception e) {
 				System.out.println(e.getMessage());
+			}
+			// Only proceed if the arg is valid
+			if(firstArg <= 0) {
+				System.out.println("Please enter a number greater than zero");
+				return;
 			}
 			
 			users = new HashMap<Integer, User>(firstArg);
@@ -34,8 +41,8 @@ public class Infectr {
 			
 			/* Test Case 1: Infecting single user in disconnected graph */	
 			infectAll(5); // only infects 5
-			System.out.println("Infected: " + String.valueOf(infectedUsers));
-			disinfectUser(5);
+			System.out.println("Infected " + infectedUsers.size() + " users : " + String.valueOf(infectedUsers));
+			disinfectUser(5); // test case cleanup
 
 			/* Test Case 2: Infecting single user in connected graph
 			This is testing the total_infection scenario */	
@@ -43,9 +50,9 @@ public class Infectr {
 			createCoachesRelations();
 			printRelations();			
 			infectAll(7); // infects users starting from 7
-			System.out.println("Infected: " + String.valueOf(infectedUsers));
+			System.out.println("Infected " + infectedUsers.size() + " users : " + String.valueOf(infectedUsers));
 
-		} else System.out.println("Please enter the number of users you'd like to create");
+		} else System.out.println("Please enter the number of users you'd like to create, like 'java Infectr 30'");
 	}
 
 	/* Creates and adds user to a HashTable. In production, the HashTable would be in a db */
@@ -70,6 +77,14 @@ public class Infectr {
 					infectAll(studentId);
 				}
 			}	
+		}
+	}
+
+	/* Infects exactly number of users specified, fails otherwise */
+	public static void infectExactly(int numUsers) {
+		// Proceed only if num of users we want to infect is less than total user base, and they're not all infected
+		if(numUsers < users.size() && users.size() != infectedUsers.size()) {
+			// infect exactly
 		}
 	}
 
