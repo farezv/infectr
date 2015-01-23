@@ -5,9 +5,9 @@ public class Infectr {
 
 	private static int CURRENT_VERSION = 1;
 
-	// In production, users would be in a database and deserialized into a User class upon request
+	/* In production, users would be in a database and deserialized into a User class upon request */
 	private static HashMap<Integer, User> users;
-	private static ArrayList<Integer> infected;		
+	private static ArrayList<Integer> infectedUsers;		
 
 	public static void main(String[] args) {
 		if(args.length != 0) {
@@ -27,38 +27,40 @@ public class Infectr {
 					createUser("student", i);
 				}
 			}
-			infected = new ArrayList<Integer>();
+			infectedUsers = new ArrayList<Integer>();
 
+			/* I would setup a proper testing module (InfectrTest.java) in a production codebase, 
+			but I'm just going to call methods at the end of this main method to keep it simple */	
+			
+			/* Test Case 1: Infecting single user in disconnected graph */	
 			infectAll(5); // only infects 5
-			printUsers();
+			System.out.println("Infected: " + String.valueOf(infectedUsers));
+			
+			/* Test Case 2: Infecting single user in connected graph
+			This is testing the total_infection scenario */	
 			createCoachedByRelations();
 			createCoachesRelations();
 			printRelations();			
 			infectAll(7); // infects users starting from 7
-			System.out.println("Infected: " + String.valueOf(infected));
+			System.out.println("Infected: " + String.valueOf(infectedUsers));
 
 		} else System.out.println("Please enter the number of users you'd like to create");
 	}
 
+	/* Creates and adds user to a HashTable. In production, the HashTable would be in a db */
 	public static void createUser(String name, int uid) {
 		User u = new User(name, uid, CURRENT_VERSION);
 		users.put(uid, u);
 	}
 
-	public static void printUsers() {
-		for (User u: users.values()) {
-			System.out.println(u.getName() + " " + String.valueOf(u.getUid()) + " on version " + String.valueOf(u.getVersion()));
-		}
-	}
-
-	/* Recursively infects users */
+	/* Recursively infects all users connected by "coaching" and "is coached by" relations */
 	public static void infectAll(int uid) {
 		if(!users.isEmpty()) {
 			User user = users.get(uid);
 			if(user != null && !user.isInfected(CURRENT_VERSION + 1)) {
 				// Infect the specifed user
 				user.setVersion(CURRENT_VERSION + 1);
-				infected.add(uid);
+				infectedUsers.add(uid);
 				// Infect its coaches and students
 				for(int coachId: user.getCoaches()) {
 					infectAll(coachId);
@@ -80,6 +82,7 @@ public class Infectr {
 		}
 	}
 
+	/* Iterates through every user and adds that user to it's coaches' student list */
 	public static void createCoachesRelations() {
 		for(User student: users.values()) {
 			for(int coachId: student.getCoaches()) {
@@ -91,7 +94,7 @@ public class Infectr {
 		}
 	}
 
-	// Generates random user id from list of current users, that don't match the given uid
+	/* Generates random user id from list of current users, that don't match the given uid */
 	public static int randomUidGenerator(int uid) {
 		Random numGen = new Random();
 		int randomUid = numGen.nextInt(users.size());
@@ -102,9 +105,18 @@ public class Infectr {
 		return randomUid;
 	}
 
+	/* Adds exactly one coach to every user
+	Calling this function multiple times will add more coaches */
 	public static void createCoachedByRelations() {
 		for(int i = 0; i < users.size(); i++) {
 			addRandomCoach(i);
+		}
+	}
+
+	/* Print functions used for debugging/testing. Wouldn't typically exist in production */
+	public static void printUsers() {
+		for (User u: users.values()) {
+			System.out.println(u.getName() + " " + String.valueOf(u.getUid()) + " on version " + String.valueOf(u.getVersion()));
 		}
 	}
 
