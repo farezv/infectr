@@ -35,22 +35,29 @@ public class Infectr {
 				}
 			}
 			infectedUsers = new ArrayList<Integer>();
+			groups = new HashMap<Integer, Group>();
 
 			/* I would setup a proper testing module (InfectrTest.java) in a production codebase, 
 			but I'm just going to call methods at the end of this main method to keep it simple */	
 			
 			/* Test Case 1: Infecting single user in disconnected graph */	
+			System.out.println("\n** Test Case 1 ** Single user in disconnected graph");
 			infectAll(5); // only infects 5
 			System.out.println("Infected " + infectedUsers.size() + " users : " + String.valueOf(infectedUsers));
 			disinfectUser(5); // test case cleanup
 
 			/* Test Case 2: Infecting single user in connected graph
 			This is testing the total_infection scenario */	
+			System.out.println("\n** Test Case 2 ** Total infection in connected graph");
 			createCoachedByRelations();
 			createCoachesRelations();
-			printRelations();			
+			// printRelations(); // uncomment to visually check relation graph			
 			infectAll(7); // infects users starting from 7
 			System.out.println("Infected " + infectedUsers.size() + " users : " + String.valueOf(infectedUsers));
+
+			/* Test Case 3: Limited Infection Scenario */
+			System.out.println("\n** Test Case 3 ** Limited infection using Groups: \n");
+			printGroups();
 
 		} else System.out.println("Please enter the number of users you'd like to create, like 'java Infectr 30'");
 	}
@@ -70,11 +77,11 @@ public class Infectr {
 				user.setVersion(CURRENT_VERSION + 1);
 				infectedUsers.add(uid);
 				// Infect its coaches and students
-				for(int coachId: user.getCoaches()) {
-					infectAll(coachId);
-				}
 				for(int studentId: user.getStudents()) {
 					infectAll(studentId);
+				}
+				for(int coachId: user.getCoaches()) {
+					infectAll(coachId);
 				}
 			}	
 		}
@@ -101,13 +108,37 @@ public class Infectr {
 	/* Iterates through every user and adds that user to it's coaches' student list */
 	public static void createCoachesRelations() {
 		for(User student: users.values()) {
-			for(int coachId: student.getCoaches()) {
+			for(int i = 0; i < student.getCoaches().size(); i++) {
+				int coachId = student.getCoaches().get(i);
 				User coach = users.get(coachId);
 				if(coach != null) {
 					coach.addStudent(student.getUid());
+					// For every student's first coach
+					if(i == 0) {
+						// If a group exists, add the student
+						if(groups.containsKey(coachId)) {
+							addStudentToExistingGroup(coachId, student.getUid());
+						} else {
+						// Otherwise, create group and add student
+							addStudentToNewGroup(coachId, student.getUid());
+						}
+					}
 				}
 			}
 		}
+	}
+
+	/* Add student to specified coach's group */
+	public static void addStudentToExistingGroup(int coachId, int studentId) {
+		Group group = groups.get(coachId);
+		if(group != null) group.addUser(studentId);
+	}
+
+	/* Add student to new group */
+	public static void addStudentToNewGroup(int coachId, int studentId) {
+		Group group = new Group(coachId);
+		group.addUser(studentId);
+		groups.put(coachId, group);
 	}
 
 	/* Generates random user id from list of current users, that don't match the given uid */
@@ -141,7 +172,7 @@ public class Infectr {
 		}
 	}
 
-	/* Print method used for debugging/testing. Wouldn't typically exist in production */
+	/* Print methods used for debugging/testing. Wouldn't typically exist in production */
 	public static void printUsers() {
 		for (User u: users.values()) {
 			System.out.println(u.getName() + " " + String.valueOf(u.getUid()) + " on version " + String.valueOf(u.getVersion()));
@@ -151,6 +182,12 @@ public class Infectr {
 	public static void printRelations() {
 		for (User u: users.values()) {
 			System.out.println(String.valueOf(u.getUid()) + " coaches " + String.valueOf(u.getStudents()) + " student of " + String.valueOf(u.getCoaches()));
+		}
+	}
+
+	public static void printGroups() {
+		for (Group g: groups.values()) {
+			System.out.println(g.getName() + " : " + g.getGroupUsers());
 		}
 	}
 }
