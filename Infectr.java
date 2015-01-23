@@ -12,7 +12,7 @@ public class Infectr {
 	private static ArrayList<Group>	sortedGroups;	
 
 	public static void main(String[] args) {
-		// Only proceed if an arg is provided
+		// Proceed if an arg is provided
 		if(args.length != 0) {
 			int firstArg, secondArg;
 			firstArg = secondArg = 0;
@@ -22,7 +22,7 @@ public class Infectr {
 			} catch (Exception e) {
 				System.out.println(e.getMessage());
 			}
-			// Only proceed if the arg is valid
+			// Proceed if the arg is valid
 			if(firstArg <= 0) {
 				System.out.println("Please enter a number greater than zero");
 				return;
@@ -105,8 +105,8 @@ public class Infectr {
 			Group g = sortedGroups.get(i);
 			sum += g.getGroupSize();
 			infectOneGroup(g);
-			// I realize that I'm infecting before I evaluate the sum
-			// This is because groups can have overlapping users so I'm being being a little lenient
+			// I realize that I'm infecting before I evaluate the sum in the next loop iteration
+			// This is because groups can have overlapping users so I'm being a little lenient
 		}
 	}
 
@@ -258,6 +258,8 @@ public class Infectr {
 			System.out.println(sortedGroups.get(sortedGroups.size()-1).getName() + " and size = " + sortedGroups.get(sortedGroups.size()-1).getGroupSize());
 			infectLimited(infectNum);
 			System.out.println("Infected " + infectedUsers.size() + " users : " + String.valueOf(infectedUsers));
+			// Test case cleanup
+			disinfectAll();
 		}
 	}
 }
