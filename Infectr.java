@@ -35,7 +35,8 @@ public class Infectr {
 			/* Test Case 1: Infecting single user in disconnected graph */	
 			infectAll(5); // only infects 5
 			System.out.println("Infected: " + String.valueOf(infectedUsers));
-			
+			disinfectUser(5);
+
 			/* Test Case 2: Infecting single user in connected graph
 			This is testing the total_infection scenario */	
 			createCoachedByRelations();
@@ -106,14 +107,26 @@ public class Infectr {
 	}
 
 	/* Adds exactly one coach to every user
-	Calling this function multiple times will add more coaches */
+	Calling this method multiple times will add more coaches */
 	public static void createCoachedByRelations() {
 		for(int i = 0; i < users.size(); i++) {
 			addRandomCoach(i);
 		}
 	}
 
-	/* Print functions used for debugging/testing. Wouldn't typically exist in production */
+	/* Helper method that rolls back a user to the current version */
+	public static void disinfectUser(int uid) {
+		if(!users.isEmpty()) {
+			User user = users.get(uid);
+			if(user != null && user.isInfected(CURRENT_VERSION + 1)) {
+				// Disinfect the specifed user
+				user.setVersion(CURRENT_VERSION);
+				infectedUsers.remove(Integer.valueOf(uid));
+			}
+		}
+	}
+
+	/* Print method used for debugging/testing. Wouldn't typically exist in production */
 	public static void printUsers() {
 		for (User u: users.values()) {
 			System.out.println(u.getName() + " " + String.valueOf(u.getUid()) + " on version " + String.valueOf(u.getVersion()));
