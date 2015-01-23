@@ -8,14 +8,17 @@ public class Infectr {
 	/* In production, these data structures would be in a database */
 	private static HashMap<Integer, User> users;
 	private static ArrayList<Integer> infectedUsers;
-	private static HashMap<Integer, Group> groups;		
+	private static HashMap<Integer, Group> groups;
+	private static ArrayList<Group>	sortedGroups;	
 
 	public static void main(String[] args) {
 		// Only proceed if an arg is provided
 		if(args.length != 0) {
-			int firstArg = 0;
+			int firstArg, secondArg;
+			firstArg = secondArg = 0;
 			try {
 				firstArg = Integer.parseInt(args[0]);
+				if(args[1] != null) secondArg = Integer.parseInt(args[1]);
 			} catch (Exception e) {
 				System.out.println(e.getMessage());
 			}
@@ -36,13 +39,16 @@ public class Infectr {
 			}
 			infectedUsers = new ArrayList<Integer>();
 			groups = new HashMap<Integer, Group>();
-
+			
 			/* I would setup a separate testing package with InfectrTest.java in a production codebase, 
 			but I'm just going to call methods at the end of this main method to keep it simple */	
-			
 			InfectrTest.testSingleUserInDisconnectedGraph();
 			InfectrTest.testTotalInfection();
-			InfectrTest.testLimitedInfectionWithGroups();
+
+			sortedGroups = new ArrayList<Group>(groups.values());
+			if(secondArg > 0) {
+				InfectrTest.testLimitedInfectionWithGroups(secondArg);
+			} else System.out.println("\nEnter a valid second argument to test Limited infection, like 'java Infectr 30 3' \nThis will infect 3 users out of 30");
 
 		} else System.out.println("Please enter the number of users you'd like to create, like 'java Infectr 30'");
 	}
@@ -69,6 +75,38 @@ public class Infectr {
 					infectAll(coachId);
 				}
 			}	
+		}
+	}
+
+	/* Infects one user */
+	public static void infectOneUser(int uid) {
+		if(!users.isEmpty()) {
+			User user = users.get(uid);
+			if(user != null && !user.isInfected(CURRENT_VERSION + 1)) {
+				// Infect the specifed user
+				user.setVersion(CURRENT_VERSION + 1);
+				infectedUsers.add(uid);
+			}
+		}
+	}
+
+	/* Infects one group */
+	public static void infectOneGroup(Group g) {
+		infectOneUser(g.getHeadCoachId());
+		for(int uid: g.getGroupUsers()) {
+				infectOneUser(uid);
+			}
+	}
+
+	/* Infects a limited number of users in the connected graph */
+	public static void infectLimited(int numUsers) {
+		int sum = 0;
+		for(int i = 0; i < sortedGroups.size() && sum < numUsers; i++) {
+			Group g = sortedGroups.get(i);
+			sum += g.getGroupSize();
+			infectOneGroup(g);
+			// I realize that I'm infecting before I evaluate the sum
+			// This is because groups can have overlapping users so I'm being being a little lenient
 		}
 	}
 
@@ -145,16 +183,24 @@ public class Infectr {
 		}
 	}
 
-	/* Helper method that rolls back a user to the current version */
+	/* Helper method that rolls back a user to the current version
+	NOTE: Does not remove from infected array */
 	public static void disinfectUser(int uid) {
 		if(!users.isEmpty()) {
 			User user = users.get(uid);
 			if(user != null && user.isInfected(CURRENT_VERSION + 1)) {
 				// Disinfect the specifed user
 				user.setVersion(CURRENT_VERSION);
-				infectedUsers.remove(Integer.valueOf(uid));
 			}
 		}
+	}
+
+	/* Helper method that rolls back all infected users to current version */
+	public static void disinfectAll() {
+		for(int uid : infectedUsers) {
+			disinfectUser(uid);
+		}
+		infectedUsers.clear();
 	}
 
 	/* Print methods used for debugging/testing. Wouldn't typically exist in production */
@@ -164,6 +210,7 @@ public class Infectr {
 		}
 	}
 
+	/* Prints entire relation graph. This method and the terminal don't get along. */
 	public static void printRelations() {
 		for (User u: users.values()) {
 			System.out.println(String.valueOf(u.getUid()) + " coaches " + String.valueOf(u.getStudents()) + " student of " + String.valueOf(u.getCoaches()));
@@ -181,9 +228,11 @@ public class Infectr {
 		/* Test Case 1: Infecting single user in disconnected graph */	
 		public static void testSingleUserInDisconnectedGraph() {
 			System.out.println("\n** Test Case 1 ** Single user in disconnected graph");
-			infectAll(5); // only infects 5
+			// Only infects user 5
+			infectAll(5);
 			System.out.println("Infected " + infectedUsers.size() + " users : " + String.valueOf(infectedUsers));
-			disinfectUser(5); // test case cleanup
+			// Test case cleanup
+			disinfectAll();
 		}
 
 		/* Test Case 2: Infecting single user in connected graph */	
@@ -191,16 +240,24 @@ public class Infectr {
 			System.out.println("\n** Test Case 2 ** Total infection in connected graph");
 			createCoachedByRelations();
 			createCoachesRelations();
-			// printRelations(); // uncomment to visually check relation graph			
-			infectAll(7); // infects users starting from 7
+			// Uncomment next line to visually check relation graph
+			// printRelations(); 			
+			System.out.println("Infecting users starting from 7...\n");
+			infectAll(7);
+			printGroups();
 			System.out.println("Infected " + infectedUsers.size() + " users : " + String.valueOf(infectedUsers));
-
+			// Test case cleanup
+			disinfectAll();
 		}
 
 		/* Test Case 3: Limited Infection Scenario */
-		public static void testLimitedInfectionWithGroups() {
-			System.out.println("\n** Test Case 3 ** Limited infection using Groups: \n");
-			printGroups();
+		public static void testLimitedInfectionWithGroups(int infectNum) {
+			System.out.println("\n** Test Case 3 ** Limited infection using Groups sorted by size (including head coach): ");
+			Collections.sort(sortedGroups);
+			System.out.println(sortedGroups.get(0).getName() + " and size = " + sortedGroups.get(0).getGroupSize() + "\n ... ");
+			System.out.println(sortedGroups.get(sortedGroups.size()-1).getName() + " and size = " + sortedGroups.get(sortedGroups.size()-1).getGroupSize());
+			infectLimited(infectNum);
+			System.out.println("Infected " + infectedUsers.size() + " users : " + String.valueOf(infectedUsers));
 		}
 	}
 }
