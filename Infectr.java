@@ -24,11 +24,11 @@ public class Infectr {
 				firstArg = Integer.parseInt(args[0]);
 				if(args[1] != null) secondArg = Integer.parseInt(args[1]);
 			} catch (Exception e) {
-				System.out.println(e.getMessage());
+				print(e.getMessage());
 			}
 			// Proceed if the arg is valid
 			if(firstArg <= 0) {
-				System.out.println("Please enter a number greater than zero");
+				print("Please enter a number greater than zero");
 				return;
 			}
 			
@@ -53,9 +53,9 @@ public class Infectr {
 			if(secondArg > 0 && secondArg < firstArg) {
 				InfectrTest.testLimitedInfectionWithGroups(secondArg);
 				InfectrTest.testExactInfectionWithGroups(secondArg);
-			} else System.out.println("\nEnter a valid second argument to test Limited & Exact infection, like 'java Infectr 30 3' \nThis will try to infect approx. 3 users out of 30 (limited), and exactly 3 out of 30 respectively");
+			} else print("\nEnter a valid second argument to test Limited & Exact infection, like 'java Infectr 30 3' \nThis will try to infect approx. 3 users out of 30 (limited), and exactly 3 out of 30 respectively");
 
-		} else System.out.println("Please enter the number of users you'd like to create, like 'java Infectr 30'");
+		} else print("Please enter the number of users you'd like to create, like 'java Infectr 30'");
 	}
 
 	/* Creates and adds user to a HashTable. In production, the HashTable would be in a db */
@@ -141,9 +141,9 @@ public class Infectr {
 				for(int uid : exactUids) {
 					infectOneUser(uid);
 				}
-			} else System.out.println("Whoops, it's not possible to infect exactly " + numUsers + " users");
-			System.out.println("Candidates: " + exactUids);
-		} else System.out.println("Whoops, it's not possible to infect exactly " + numUsers + " users");
+			} else print("Whoops, it's not possible to infect exactly " + numUsers + " users");
+			print("Candidates: " + exactUids);
+		} else print("Whoops, it's not possible to infect exactly " + numUsers + " users");
 	}
 
 	/* Adds a random coach to the specified user */
@@ -234,25 +234,25 @@ public class Infectr {
 	/* Print methods used for debugging/testing. Wouldn't typically exist in production */
 	public static void printUsers() {
 		for (User u: users.values()) {
-			System.out.println(u.getName() + " " + String.valueOf(u.getUid()) + " on version " + String.valueOf(u.getVersion()));
+			print(u.getName() + " " + String.valueOf(u.getUid()) + " on version " + String.valueOf(u.getVersion()));
 		}
 	}
 
 	/* Prints entire relation graph. This method and the terminal don't get along. */
 	public static void printRelations() {
 		for (User u: users.values()) {
-			System.out.println(String.valueOf(u.getUid()) + " coaches " + String.valueOf(u.getStudents()) + " student of " + String.valueOf(u.getCoaches()));
+			print(String.valueOf(u.getUid()) + " coaches " + String.valueOf(u.getStudents()) + " student of " + String.valueOf(u.getCoaches()));
 		}
 	}
 
 	/* Prints unsorted groups in the order they were created */
 	public static void printGroups() {
 		for (Group g: groups.values()) {
-			System.out.println(g.getName() + " : " + g.getGroupUsers());
+			print(g.getName() + " : " + g.getGroupUsers());
 		}
 	}
 
-	/* I got tired of System.outs */
+	/* I got tired of System.outs everywhere */
 	public static void print(String msg) {
 		System.out.println(msg);
 	}
@@ -261,49 +261,49 @@ public class Infectr {
 
 		/* Test Case 1: Infecting single user in disconnected graph */	
 		public static void testSingleUserInDisconnectedGraph() {
-			System.out.println("\n** Test Case 1 ** Single user in disconnected graph");
+			print("\n** Test Case 1 ** Single user in disconnected graph");
 			// Only infects user 5
 			infectAll(5);
-			System.out.println("Infected " + infectedUsers.size() + " users : " + String.valueOf(infectedUsers));
+			print("Infected " + infectedUsers.size() + " users : " + String.valueOf(infectedUsers));
 			// Test case cleanup
 			disinfectAll();
 		}
 
 		/* Test Case 2: Infecting single user in connected graph */	
 		public static void testTotalInfection() {
-			System.out.println("\n** Test Case 2 ** Total infection in connected graph");
+			print("\n** Test Case 2 ** Total infection in connected graph");
 			createCoachedByRelations();
 			createCoachesRelations();
 			// Uncomment next line to visually check relation graph
 			// printRelations(); 			
-			System.out.println("Infecting users starting from 7...\n");
+			print("Infecting users starting from 7...\n");
 			infectAll(7);
 			printGroups();
-			System.out.println("Infected " + infectedUsers.size() + " users : " + String.valueOf(infectedUsers));
+			print("Infected " + infectedUsers.size() + " users : " + String.valueOf(infectedUsers));
 			// Test case cleanup
 			disinfectAll();
 		}
 
 		/* Test Case 3: Limited Infection Scenario */
 		public static void testLimitedInfectionWithGroups(int infectNum) {
-			System.out.println("\n** Test Case 3 ** Limited infection using Groups sorted by size (including head coach): ");
+			print("\n** Test Case 3 ** Limited infection using Groups sorted by size (including head coach): ");
 			Collections.sort(sortedGroups);
-			System.out.println(sortedGroups.get(0).getName() + " and size = " + sortedGroups.get(0).getGroupSize() + "\n ... ");
-			System.out.println(sortedGroups.get(sortedGroups.size()-1).getName() + " and size = " + sortedGroups.get(sortedGroups.size()-1).getGroupSize());
+			print(sortedGroups.get(0).getName() + " and size = " + sortedGroups.get(0).getGroupSize() + "\n ... ");
+			print(sortedGroups.get(sortedGroups.size()-1).getName() + " and size = " + sortedGroups.get(sortedGroups.size()-1).getGroupSize());
 			infectLimited(infectNum);
-			System.out.println("Infected " + infectedUsers.size() + " users : " + String.valueOf(infectedUsers));
+			print("Infected " + infectedUsers.size() + " users : " + String.valueOf(infectedUsers));
 			// Test case cleanup
 			disinfectAll();
 		}
 
 		/* Test Case 4: Exact Infection Scenario */
 		public static void testExactInfectionWithGroups(int infectNum) {
-			System.out.println("\n** Test Case 4 ** Exact infection using Groups sorted by size (including head coach): ");
+			print("\n** Test Case 4 ** Exact infection using Groups sorted by size (including head coach): ");
 			Collections.sort(sortedGroups);
-			System.out.println(sortedGroups.get(0).getName() + " and size = " + sortedGroups.get(0).getGroupSize() + "\n ... ");
-			System.out.println(sortedGroups.get(sortedGroups.size()-1).getName() + " and size = " + sortedGroups.get(sortedGroups.size()-1).getGroupSize());
+			print(sortedGroups.get(0).getName() + " and size = " + sortedGroups.get(0).getGroupSize() + "\n ... ");
+			print(sortedGroups.get(sortedGroups.size()-1).getName() + " and size = " + sortedGroups.get(sortedGroups.size()-1).getGroupSize());
 			infectExactly(infectNum);
-			System.out.println("Infected " + infectedUsers.size() + " users : " + String.valueOf(infectedUsers));
+			print("Infected " + infectedUsers.size() + " users : " + String.valueOf(infectedUsers));
 			// Test case cleanup
 			disinfectAll();
 		}
