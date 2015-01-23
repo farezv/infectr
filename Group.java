@@ -3,7 +3,7 @@ import java.util.*;
 
 /* A group is created with at least one coach & one student
 This restriction can of course be changed as needed */
-public class Group {
+public class Group implements Comparable<Group> {
 
 	private String name;
 	private ArrayList<Integer> users;	
@@ -14,6 +14,17 @@ public class Group {
 		this.name = "Group " + String.valueOf(coachId);
 		this.users = new ArrayList<Integer>();
 		this.headCoachId = coachId;
+	}
+
+	@Override
+	public int compareTo(Group group) {
+		if(this.getGroupSize() < group.getGroupSize()) {
+			return -1;
+		}
+		if(this.getGroupSize() > group.getGroupSize()) {
+			return 1;
+		}
+		return 0;
 	}
 
 	/* Getters */
@@ -30,7 +41,8 @@ public class Group {
 	}
 
 	public int getGroupSize() {
-		return this.users.size();
+		// Adding 1 to include the coach :)
+		return this.users.size() + 1;
 	}
 
 	/* Helpers */
